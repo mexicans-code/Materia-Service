@@ -22,8 +22,17 @@ public class MateriaController {
         List<MateriaDTO> materias = materiaService.findAll();
         return ResponseEntity.ok(materias);
     }
+    
+    @GetMapping("/{id}")
+    public ResponseEntity<MateriaDTO> findById(@PathVariable Integer id) {
+        MateriaDTO materia = materiaService.findById(id);
+        if (materia != null) {
+            return ResponseEntity.ok(materia);
+        }
+        return ResponseEntity.notFound().build();
+    }
 
-    //Funcionalidad de habilitar --Maria Fernanda Rosas Briones- idgs12
+    // Funcionalidad de habilitar --Maria Fernanda Rosas Briones- idgs12
     @PutMapping("/habilitar/{id}")
     public ResponseEntity<String> habilitarMateria(@PathVariable int id) {
         boolean habilitada = materiaService.habilitarMateria(id);
@@ -35,7 +44,7 @@ public class MateriaController {
         }
     }
 
-//Funcionalidad de deshabilitar - CeciliaMendoza Arteaga
+    // Funcionalidad de deshabilitar - CeciliaMendoza Arteaga
     @PutMapping("/deshabilitar/{id}")
     public ResponseEntity<String> deshabilitarMateria(@PathVariable int id) {
         boolean deshabilitada = materiaService.deshabilitarMateria(id);
@@ -46,7 +55,8 @@ public class MateriaController {
             return ResponseEntity.badRequest().body("No se pudo deshabilitar la materia");
         }
     }
-    //funcion de editar- pedrito bb
+
+    // funcion de editar- pedrito bb
     @PutMapping("/editar/{id}")
     public ResponseEntity<?> editarMateria(@PathVariable int id, @RequestBody MateriaDTO materiaDTO) {
 
@@ -59,5 +69,4 @@ public class MateriaController {
         return ResponseEntity.ok(materiaEditada);
     }
 
-}
 }

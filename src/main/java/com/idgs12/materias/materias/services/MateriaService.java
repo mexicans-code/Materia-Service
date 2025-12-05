@@ -26,6 +26,9 @@ public class MateriaService {
     @Autowired
     private ProgramaFeignClient programaFeignClient;
 
+    // Crear materia
+
+    // Listar todas las materias
     @Transactional
     public List<MateriaDTO> findAll() {
         List<MateriaEntity> materias = materiaRepository.findAll();
@@ -66,39 +69,70 @@ public class MateriaService {
         }
         return resultado;
     }
-    //Funcionalidad de habilitar materia -Maria Fernanda Rosas Briones
-        @Transactional
-        public boolean habilitarMateria(int id) {
-            MateriaEntity materia = materiaRepository.findById(id).orElse(null);
 
-            if (materia == null) {
-                return false;
-            }
+    //  Obtener materia por ID (para Feign Client)
+    public MateriaDTO findById(Integer id) {
+        MateriaEntity materia = materiaRepository.findById(id).orElse(null);
 
-            materia.setActivo(true);
-            materiaRepository.save(materia);
-
-            return true;
+        if (materia == null) {
+            return null;
         }
-    //Funcionalidad de deshabilitar materia -Cecilia Mendoza Arteaga
-@Transactional
-public boolean deshabilitarMateria(int id) {
-    MateriaEntity materia = materiaRepository.findById(id).orElse(null);
 
-    if (materia == null) {
-        return false;
+        MateriaDTO dto = new MateriaDTO();
+        dto.setId(materia.getId());
+        dto.setNombre(materia.getNombre());
+        dto.setActivo(materia.isActivo());
+
+        if (materia.getProgramaMaterias() != null && !materia.getProgramaMaterias().isEmpty()) {
+            ProgramaMateriaEntity relacion = materia.getProgramaMaterias().get(0);
+            dto.setProgramaId(relacion.getProgramaId());
+
+            try {
+                ProgramaEducativoDTO programa = programaFeignClient.getProgramaById(relacion.getProgramaId());
+                if (programa != null) {
+                    dto.setNombrePrograma(programa.getNombre());
+                }
+            } catch (Exception e) {
+                dto.setNombrePrograma("Sin programa");
+            }
+        }
+
+        return dto;
     }
 
-    materia.setActivo(false); // Cambiamos a false para deshabilitar
-    materiaRepository.save(materia);
+    // Funcionalidad de habilitar materia -Maria Fernanda Rosas Briones
+    @Transactional
+    public boolean habilitarMateria(int id) {
+        MateriaEntity materia = materiaRepository.findById(id).orElse(null);
 
-    return true;
-}
+        if (materia == null) {
+            return false;
+        }
 
+        materia.setActivo(true);
+        materiaRepository.save(materia);
 
-        //Funcionalidad editar-pedritobb
-        @Transactional
-        public MateriaDTO editarMateria(int id, MateriaDTO materiaDTO) {
+        return true;
+    }
+
+    // Funcionalidad de deshabilitar materia -Cecilia Mendoza Arteaga
+    @Transactional
+    public boolean deshabilitarMateria(int id) {
+        MateriaEntity materia = materiaRepository.findById(id).orElse(null);
+
+        if (materia == null) {
+            return false;
+        }
+
+        materia.setActivo(false); // Cambiamos a false para deshabilitar
+        materiaRepository.save(materia);
+
+        return true;
+    }
+
+    // Funcionalidad editar-pedritobb
+    @Transactional
+    public MateriaDTO editarMateria(int id, MateriaDTO materiaDTO) {
 
         MateriaEntity materia = materiaRepository.findById(id).orElse(null);
 
